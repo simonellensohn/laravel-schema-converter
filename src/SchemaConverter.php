@@ -114,7 +114,7 @@ class SchemaConverter
             return $this->handleRelation($model, $attribute);
         }
 
-        throw InvalidConfiguration::configIsNotValid();
+        throw InvalidConfiguration::configIsNotValid(get_class($model));
     }
 
     protected function convertModel($model)
