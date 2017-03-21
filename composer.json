@@ -1,0 +1,42 @@
+{
+    "name": "towa/laravel-schema-converter",
+    "description": "Converts eloquent models to a specified schema",
+    "keywords": [
+        "towa",
+        "schema-org",
+        "converter",
+        "laravel"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Simon Ellensohn",
+            "email": "simon.ellensohn@towa.at",
+            "homepage": "https://www.towa-digital.com"
+        }
+    ],
+    "require": {
+        "php": "^7.0",
+        "illuminate/database": "~5.4.0",
+        "illuminate/support": "~5.4.0",
+        "nesbot/carbon": "^1.21",
+        "spatie/schema-org": "^1.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "~3.4.0",
+        "phpunit/phpunit": "^6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Towa\\Converter\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Towa\\Converter\\Test\\": "tests"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
