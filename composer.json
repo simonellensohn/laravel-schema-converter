@@ -1,5 +1,5 @@
 {
-    "name": "towa/laravel-schema-converter",
+    "name": "simonellensohn/laravel-schema-converter",
     "description": "Converts eloquent models to a specified schema",
     "keywords": [
         "towa",
