@@ -59,7 +59,7 @@ class SchemaConverter
      */
     protected function getSchema(string $schema, $model)
     {
-        $schemaClass = 'Spatie\\SchemaOrg\\' . ucfirst($schema);
+        $schemaClass = 'Spatie\\SchemaOrg\\'.ucfirst($schema);
 
         if (! class_exists($schemaClass, true)) {
             throw InvalidConfiguration::typeIsNotValid(get_class($model));
@@ -145,7 +145,7 @@ class SchemaConverter
             $schema = $schema->{$key}(count($value) > 1 ? $value : $value[0]);
         } else {
             $schema->{$key}(
-                $value instanceOf Carbon
+                $value instanceof Carbon
                     ? $value->toAtomString()
                     : $value
             );
