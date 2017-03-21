@@ -55,7 +55,8 @@ class SchemaTest extends TestCase
     }
 
     /** @test */
-    public function it_can_determine_the_schema_type_of_a_relation() {
+    public function it_can_determine_the_schema_type_of_a_relation()
+    {
         $schema = $this->location->convertToSchema()->toArray();
 
         $this->assertArraySubset([
@@ -65,15 +66,16 @@ class SchemaTest extends TestCase
             'address' => [
                 '@type' => 'PostalAddress',
                 'streetAddress' => 'address_street',
-            ]
+            ],
         ], $schema);
     }
 
     /** @test */
-    public function it_can_parse_carbon_fields() {
-         $schema = $this->event->convertToSchema()->toArray();
+    public function it_can_parse_carbon_fields()
+    {
+        $schema = $this->event->convertToSchema()->toArray();
 
-         $this->assertArraySubset([
+        $this->assertArraySubset([
              'startDate' => $this->event->start_date->toAtomString(),
              'endDate' => $this->event->end_date->toAtomString(),
          ], $schema);

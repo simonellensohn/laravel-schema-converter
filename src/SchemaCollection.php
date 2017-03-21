@@ -8,6 +8,6 @@ class SchemaCollection extends Collection
 {
     public function toScript()
     {
-        return '<script type="application/ld+json">' . json_encode($this) . '</script>';
+        return '<script type="application/ld+json">'.json_encode($this).'</script>';
     }
 }
