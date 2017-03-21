@@ -5,10 +5,12 @@ namespace Towa\Converter;
 use Exception;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 use Towa\Converter\Exceptions\InvalidConfiguration;
 
 class SchemaConverter
 {
+    /** @var array */
     protected $config;
 
     /**
@@ -49,13 +51,14 @@ class SchemaConverter
     }
 
     /**
-     * Get the given schema type.
+     * Get the given schema class.
      *
      * @param string $schema
      * @param        $model
      *
-     * @return mixed
      * @throws InvalidConfiguration
+     *
+     * @return mixed
      */
     protected function getSchema(string $schema, $model)
     {
@@ -90,12 +93,14 @@ class SchemaConverter
      */
     protected function handleRelationAttribute($key, $attribute)
     {
-        // Get only the relation and it's attribute
-        $exploded = explode(':', $attribute);
-        $relationAndAttribute = explode(',', $exploded[1]);
+        // Get only the relation and the requested field
+        $relationAndField = explode(':', $attribute);
+        // Append a optional "," at the end to prevent an undefined offset of the returned array
+        [$relation, $field] = explode(',', $relationAndField[1].',');
 
         $this->config['attributes'][$key] = [
-            'relation' => $relationAndAttribute[0],
+            'relation' => $relation,
+            'field' => $field ?? null,
         ];
     }
 
@@ -105,8 +110,9 @@ class SchemaConverter
      * @param       $model
      * @param array $attribute
      *
-     * @return null
      * @throws InvalidConfiguration
+     *
+     * @return null
      */
     protected function convertArrayToSchema($model, array $attribute)
     {
@@ -117,6 +123,15 @@ class SchemaConverter
         throw InvalidConfiguration::configIsNotValid(get_class($model));
     }
 
+    /**
+     * Convert the given model to the according schema array.
+     *
+     * @param $model
+     *
+     * @throws InvalidConfiguration
+     *
+     * @return mixed
+     */
     protected function convertModel($model)
     {
         try {
@@ -128,13 +143,36 @@ class SchemaConverter
         return $schema;
     }
 
+    /**
+     * Get the related model and convert it.
+     *
+     * @param $model
+     * @param $attribute
+     *
+     * @return mixed
+     */
     protected function handleRelation($model, $attribute)
     {
         $model = $this->getRelatedModel($model, $attribute);
 
+        if (! empty($attribute['field'])) {
+            return $this->getRequestedFieldFromModel($model, $attribute['field']);
+        }
+
         return $this->convertModel($model);
     }
 
+    /**
+     * Set the schema properties.
+     *
+     * @param $schema
+     * @param $value
+     * @param $key
+     *
+     * @throws InvalidConfiguration
+     *
+     * @return mixed
+     */
     protected function setSchemaProperties($schema, $value, $key)
     {
         if (! method_exists(get_class($schema), $key)) {
@@ -142,18 +180,22 @@ class SchemaConverter
         }
 
         if (is_array($value) && ! empty($value)) {
-            $schema = $schema->{$key}(count($value) > 1 ? $value : $value[0]);
+            $schema->{$key}($this->parseArrayAttribute($value));
         } else {
-            $schema->{$key}(
-                $value instanceof Carbon
-                    ? $value->toAtomString()
-                    : $value
-            );
+            $schema->{$key}($this->parseAttribute($value));
         }
 
         return $schema;
     }
 
+    /**
+     * Get the related model according to the given attribute relation.
+     *
+     * @param $model
+     * @param $attribute
+     *
+     * @return mixed
+     */
     protected function getRelatedModel($model, $attribute)
     {
         $relations = $attribute['relation'];
@@ -169,5 +211,57 @@ class SchemaConverter
         }
 
         return $model->{$relations};
+    }
+
+    /**
+     * Retrieve the field defined in the config.
+     *
+     * @param $model
+     * @param $field
+     *
+     * @return mixed
+     */
+    protected function getRequestedFieldFromModel($model, $field)
+    {
+        if ($model instanceof Collection) {
+            return $model->map->{$field}->toArray();
+        }
+
+        return $model->{$field};
+    }
+
+    /**
+     * Return the parsed array attribute.
+     * Parse all single attributes if the array size is greater than one.
+     *
+     * @param $array
+     *
+     * @return array|mixed
+     */
+    protected function parseArrayAttribute($array)
+    {
+        $array = collect($array);
+
+        if ($array->count() === 1) {
+            return $array[0];
+        }
+
+        return $array->map(function ($value) {
+            return $this->parseAttribute($value);
+        })->toArray();
+    }
+
+    /**
+     * Parse a single attribute.
+     *
+     * @param $value
+     *
+     * @return string
+     */
+    protected function parseAttribute($value)
+    {
+        return $value instanceof Carbon
+            ? $value->toAtomString()
+            : $value;
     }
 }

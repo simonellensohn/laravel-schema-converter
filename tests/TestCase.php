@@ -65,14 +65,24 @@ abstract class TestCase extends Orchestra
             $table->increments('id');
             $table->string('name')->nullable();
             $table->text('description')->nullable();
-            $table->dateTime('start_date')->nullable();
-            $table->dateTime('end_date')->nullable();
             $table->unsignedInteger('location_id')->nullable()->index();
             $table->timestamps();
 
             $table->foreign('location_id')
                 ->references('id')
                 ->on('locations');
+        });
+
+        $schemaBuilder->create('event_dates', function (Blueprint $table) {
+            $table->increments('id');
+            $table->dateTime('start_date')->nullable();
+            $table->dateTime('end_date')->nullable();
+            $table->unsignedInteger('event_id')->nullable()->index();
+            $table->timestamps();
+
+            $table->foreign('event_id')
+                ->references('id')
+                ->on('events');
         });
     }
 

@@ -18,8 +18,8 @@ class Event extends Model
         'attributes' => [
             'name' => 'name',
             'description' => 'description',
-            'startDate' => 'start_date',
-            'endDate' => 'end_date',
+            'startDate' => 'relation:dates,start_date',
+            'endDate' => 'relation:dates,end_date',
             'location' => 'relation:location',
         ],
     ];
@@ -27,5 +27,10 @@ class Event extends Model
     public function location()
     {
         return $this->belongsTo(Location::class, 'location_id');
+    }
+
+    public function dates()
+    {
+        return $this->hasMany(EventDate::class);
     }
 }

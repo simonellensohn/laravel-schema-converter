@@ -34,9 +34,17 @@ class SchemaTest extends TestCase
         $this->event = Event::create([
             'name' => 'event_name',
             'description' => 'event_description',
+            'location_id' => $this->location->id,
+        ]);
+
+        $this->event->dates()->create([
             'start_date' => Carbon::now()->subWeek()->toDateTimeString(),
             'end_date' => Carbon::now()->subDays(6)->toDateTimeString(),
-            'location_id' => $this->location->id,
+        ]);
+
+        $this->event->dates()->create([
+            'start_date' => Carbon::now()->subDays(2)->toDateTimeString(),
+            'end_date' => Carbon::now()->subDay()->toDateTimeString(),
         ]);
     }
 
@@ -48,36 +56,40 @@ class SchemaTest extends TestCase
         $this->assertArraySubset([
             '@context' => 'http://schema.org',
             '@type' => 'PostalAddress',
-            'streetAddress' => 'address_street',
-            'addressLocality' => 'address_city',
-            'postalCode' => '1111',
+            'streetAddress' => $this->address->street,
+            'addressLocality' => $this->address->city,
+            'postalCode' => $this->address->zipcode,
         ], $schema);
     }
 
     /** @test */
-    public function it_can_determine_the_schema_type_of_a_relation()
+    public function it_can_convert_a_model_with_a_relation()
     {
         $schema = $this->location->convertToSchema()->toArray();
 
         $this->assertArraySubset([
             '@type' => 'EventVenue',
-            'name' => 'location_name',
-            'description' => 'location_description',
+            'name' => $this->location->name,
+            'description' => $this->location->description,
             'address' => [
                 '@type' => 'PostalAddress',
-                'streetAddress' => 'address_street',
+                'streetAddress' => $this->location->address->street,
             ],
         ], $schema);
     }
 
     /** @test */
-    public function it_can_parse_carbon_fields()
+    public function it_can_parse_dates()
     {
         $schema = $this->event->convertToSchema()->toArray();
 
         $this->assertArraySubset([
-             'startDate' => $this->event->start_date->toAtomString(),
-             'endDate' => $this->event->end_date->toAtomString(),
+             'startDate' => $this->event->dates->map(function ($date) {
+                 return $date->start_date->toAtomString();
+             })->toArray(),
+             'endDate' => $this->event->dates->map(function ($date) {
+                 return $date->end_date->toAtomString();
+             })->toArray(),
          ], $schema);
     }
 }
