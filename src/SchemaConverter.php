@@ -155,11 +155,11 @@ class SchemaConverter
     {
         $model = $this->getRelatedModel($model, $attribute);
 
-        if (! empty($attribute['field'])) {
+        if ($model && ! empty($attribute['field'])) {
             return $this->getRequestedFieldFromModel($model, $attribute['field']);
         }
 
-        return $this->convertModel($model);
+        return $model ? $this->convertModel($model) : null;
     }
 
     /**
