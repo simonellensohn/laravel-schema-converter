@@ -6,6 +6,8 @@ use Exception;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\SchemaOrg\Schema;
 use Towa\Converter\Exceptions\InvalidConfiguration;
 
 class SchemaConverter
@@ -30,11 +32,11 @@ class SchemaConverter
     /**
      * Convert the given model to the specified schema.
      *
-     * @param $model
+     * @param Model $model
      *
      * @return mixed
      */
-    public function convert($model)
+    public function convert(Model $model)
     {
         $this->explodeAttributes($this->config['attributes']);
         $schema = $this->getSchema($this->config['schema'], $model);
@@ -126,13 +128,13 @@ class SchemaConverter
     /**
      * Convert the given model to the according schema array.
      *
-     * @param $model
+     * @param Model $model
      *
      * @throws InvalidConfiguration
      *
      * @return mixed
      */
-    protected function convertModel($model)
+    protected function convertModel(Model $model)
     {
         try {
             $schema = $model->convertToSchema();
