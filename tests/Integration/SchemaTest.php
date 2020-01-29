@@ -3,6 +3,7 @@
 namespace Towa\Converter\Test\Integration;
 
 use Carbon\Carbon;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Towa\Converter\Test\TestCase;
 use Towa\Converter\Test\Models\Event;
 use Towa\Converter\Test\Models\Address;
@@ -10,11 +11,13 @@ use Towa\Converter\Test\Models\Location;
 
 class SchemaTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     private $address;
     private $location;
     private $event;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -54,7 +57,7 @@ class SchemaTest extends TestCase
         $schema = $this->address->convertToSchema()->toArray();
 
         $this->assertArraySubset([
-            '@context' => 'http://schema.org',
+            '@context' => 'https://schema.org',
             '@type' => 'PostalAddress',
             'streetAddress' => $this->address->street,
             'addressLocality' => $this->address->city,
